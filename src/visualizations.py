@@ -10,7 +10,7 @@ def daily_conversion_chart(daily_df): #dayly_df vendrá de la función statistic
         y="conversion_rate",
         color="con_treat",
         markers=True,
-        title="Daily Conversion Rate"
+        title="Conversion Rate Diaria"
     )
 
     fig.update_layout(
@@ -44,7 +44,7 @@ def cumulative_sample_size(df):
         x="observation_date",
         y="cumulative_users",
         color="con_treat",
-        title="Cumulative Sample Size"
+        title="Tamaño Acumulado de Muestra (usuarios)"
     )
 
     fig.update_layout(template="plotly_white")
@@ -63,7 +63,7 @@ def conversion_bar(results): #results vendrá de la función src/conversion_rate
         x="con_treat",
         y="conversion_rate",
         color="con_treat",
-        title="Conversion Rate by Group",
+        title="Conversion Rate por Grupo",
         text="conversion_rate"
     )
 
