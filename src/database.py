@@ -23,3 +23,4 @@ def run_query(sql_query):
     conn.close()
 
     return df
+

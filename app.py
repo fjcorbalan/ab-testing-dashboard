@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from pathlib import Path
 
 #Importando funciones creadas en src/
 
@@ -37,13 +38,11 @@ st.write(
 
 #CREANDO DATAFRAME a partir del warehouse creado en "data/ab_testing.db"
 
-query = """
-SELECT *
-FROM experiment;
-"""
+query_path = Path("sql/select_all.sql") #lugar donde tenemos nuestra query sql
+
+query = query_path.read_text(encoding="utf-8")
 
 df = run_query(query)
-
 
 
 #CÁLCULO MÉTRICAS
@@ -149,4 +148,4 @@ fig_conversion = conversion_bar(results)
 st.plotly_chart(
     fig_conversion,
     use_container_width=True
-)
+) 
