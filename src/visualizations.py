@@ -54,7 +54,7 @@ def cumulative_sample_size(df):
 
 #CONVERSIÓN POR GRUPO: resumen final
 
-def conversion_bar(results): #results vendrá de la función src/conversion_rate(df)
+def conversion_bar(results): #results vendrá de la función src/statistics.py/conversion_rate(df)
 
     chart = results.reset_index()
 

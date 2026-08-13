@@ -123,7 +123,7 @@ fig_daily = daily_conversion_chart(daily_df)
 
 st.plotly_chart(
     fig_daily,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -135,7 +135,7 @@ fig_sample = cumulative_sample_size(df)
 
 st.plotly_chart(
     fig_sample,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -147,5 +147,5 @@ fig_conversion = conversion_bar(results)
 
 st.plotly_chart(
     fig_conversion,
-    use_container_width=True
+    width="stretch"
 ) 

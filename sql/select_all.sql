@@ -1,3 +1,2 @@
 SELECT *
-FROM experiment
-LIMIT 10;
+FROM experiment;
