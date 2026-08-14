@@ -67,7 +67,7 @@ def conversion_bar(results): #results vendrá de la función src/statistics.py/c
         text="conversion_rate"
     )
 
-    fig.update_traces(texttemplate="%{text:.2%}")
+    fig.update_traces(texttemplate="%{text:.1%}")
 
     fig.update_layout(
         template="plotly_white",

@@ -1,10 +1,10 @@
 import streamlit as st
-import pandas as pd
 from pathlib import Path
 
-#Importando funciones creadas en src/
+# Importando funciones creadas en src/
 
 from src.database import run_query
+
 from src.statistics import (
     conversion_rate,
     calculate_uplift,
@@ -19,7 +19,9 @@ from src.visualizations import (
 )
 
 
-#Streamlit: portada
+# ---------------------------------------------------------
+# STREAMLIT: CONFIGURACIÓN
+# ---------------------------------------------------------
 
 st.set_page_config(
     page_title="A/B Testing Dashboard",
@@ -27,25 +29,33 @@ st.set_page_config(
     layout="wide"
 )
 
+
+# ---------------------------------------------------------
+# PORTADA
+# ---------------------------------------------------------
+
 st.title("A/B Testing Dashboard")
 
 st.write(
-    "Analisis de experimento A/B comparando "
+    "Análisis de experimento A/B comparando "
     "grupos de control y tratamiento."
 )
 
 
+# ---------------------------------------------------------
+# CREANDO DATAFRAME DESDE SQLITE
+# ---------------------------------------------------------
 
-#CREANDO DATAFRAME a partir del warehouse creado en "data/ab_testing.db"
-
-query_path = Path("sql/select_all.sql") #lugar donde tenemos nuestra query sql
+query_path = Path("sql/select_all.sql")
 
 query = query_path.read_text(encoding="utf-8")
 
 df = run_query(query)
 
 
-#CÁLCULO MÉTRICAS
+# ---------------------------------------------------------
+# CÁLCULO DE MÉTRICAS
+# ---------------------------------------------------------
 
 results = conversion_rate(df)
 
@@ -55,69 +65,121 @@ test_results = z_test(results)
 
 daily_df = daily_conversion(df)
 
-#conversiones
+
+# Conversiones
+
 control_cvr = results.loc["control", "conversion_rate"]
+
 treatment_cvr = results.loc["treatment", "conversion_rate"]
 
-#número de usuarios
-control_users = results.loc["control", "users"]
-treatment_users = results.loc["treatment", "users"]
 
-#métricas test estadístico (z-test)
-p_value = test_results["p_value"]
-z_score = test_results["z_score"]
+# Métricas del test estadístico
+
 significant = test_results["significant"]
 
 
-#STREAMLIT: 
+col1, col2, col3 = st.columns(3)
 
-# indicadores (conversion de control, conversion de test, uplift y p-value del z-test)
-
-col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.metric(
         "Control conversion",
-        f"{control_cvr:.2%}"
+        f"{control_cvr:.1%}"
     )
+
 
 with col2:
     st.metric(
         "Treatment conversion",
-        f"{treatment_cvr:.2%}"
+        f"{treatment_cvr:.1%}"
     )
+
 
 with col3:
     st.metric(
         "Uplift",
-        f"{uplift:.2%}"
+        f"{uplift:.1%}"
     )
 
-with col4:
-    st.metric(
-        "P-value",
-        f"{p_value:.4g}"
+
+
+# ---------------------------------------------------------
+# RESULTADOS DEL EXPERIMENTO
+# ---------------------------------------------------------
+
+st.subheader("Resultado del experimento")
+
+significance_label = (
+    "ESTADÍSTICAMENTE SIGNIFICATIVO"
+    if significant
+    else "NO ESTADÍSTICAMENTE SIGNIFICATIVO"
+)
+
+st.metric(
+        "",
+        significance_label
     )
 
-# conclusiones
+
+# ---------------------------------------------------------
+# CONCLUSIÓN
+# ---------------------------------------------------------
 
 if significant:
+
     st.success(
-        "El grupo de tratamiento o variante muestra diferencias estadísticamente "
-        "significativas en conversion rate comparando con el grupo de control."
+        "El grupo de tratamiento o variante muestra diferencias "
+        "estadísticamente significativas en conversion rate "
+        "comparado con el grupo de control."
     )
+
 else:
+
     st.info(
-        "El experimento no muestra una diferencia significativa "
-        "en conversion rate."
+        "El experimento no muestra una diferencia estadísticamente "
+        "significativa en conversion rate."
     )
 
 
-#GRÁFICOS
 
-#conversión diaria: vemos si hay fluctuaciones importantes
+# ---------------------------------------------------------
+# RESUMEN DEL EXPERIMENTO
+# ---------------------------------------------------------
 
-st.subheader("Conversion Rate por Fecha de Observación")
+st.subheader("Seguimiento de Muestra y Conversion Rate")
+
+col1, col2 = st.columns(2)
+
+
+# Tamaño de muestra acumulado
+
+with col1:
+
+    fig_sample = cumulative_sample_size(df)
+
+    st.plotly_chart(
+        fig_sample,
+        width="stretch"
+    )
+
+
+# Conversion rate final
+
+with col2:
+
+    fig_conversion = conversion_bar(results)
+
+    st.plotly_chart(
+        fig_conversion,
+        width="stretch"
+    )
+
+
+# ---------------------------------------------------------
+# CONVERSIÓN A LO LARGO DEL TIEMPO
+# ---------------------------------------------------------
+
+st.subheader("Evolución del Conversion Rate")
 
 fig_daily = daily_conversion_chart(daily_df)
 
@@ -125,27 +187,3 @@ st.plotly_chart(
     fig_daily,
     width="stretch"
 )
-
-
-#tamaño de muestra acumulado (usuarios): al tiempo que vamos sumando usuarios, ¿qué pasa con la conversión?
-
-st.subheader("Tamaño de muestra acumulado")
-
-fig_sample = cumulative_sample_size(df)
-
-st.plotly_chart(
-    fig_sample,
-    width="stretch"
-)
-
-
-#resumen experimento
-
-st.subheader("Conversion Rate Final")
-
-fig_conversion = conversion_bar(results)
-
-st.plotly_chart(
-    fig_conversion,
-    width="stretch"
-) 
